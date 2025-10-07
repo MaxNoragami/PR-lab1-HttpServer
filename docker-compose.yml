@@ -3,4 +3,4 @@ services:
     build: .
     ports:
       - "1337:1337"
-    command: ["python", "server.py"]
+    command: ["python", "server.py", "-d", "/lab1"]

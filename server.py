@@ -3,8 +3,9 @@ import os
 import mimetypes
 import time
 import urllib.parse
+import argparse
 
-ADDRESS = "127.0.0.1"
+ADDRESS = "0.0.0.0"
 PORT = 1337
 VALID_EXTENSIONS = ["png", "pdf", "html"]
 
@@ -71,7 +72,7 @@ def display_dir(actual_path, request_path):
     view = "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Index of {path}</title></head><body><h1>Index of {path}</h1><table><tr><th> </th><th>Name</th><th>Last Modified</th><th>Size</th></tr>{items}</table></body></html>"
     if not request_path.endswith('/'):
         request_path += '/'
-    return view.format(path=request_path, items="".join(f"<tr><td>{file_type}</td><td><a href='http://{ADDRESS}:{PORT}{request_path}{name}'>{name}</a></td><td>{modified}</td><td>{size}</td></tr>" for file_type, name, modified, size in filtered_content))
+    return view.format(path=request_path, items="".join(f"<tr><td>{file_type}</td><td><a href='{request_path}{name}'>{name}</a></td><td>{modified}</td><td>{size}</td></tr>" for file_type, name, modified, size in filtered_content))
 
 def normalize_path(path):
     segments = [seg for seg in path.split('/') if seg]
@@ -85,8 +86,11 @@ def normalize_path(path):
     return '/' + '/'.join(normalized_segments)
 
 def run_server():
-    root = "."
-    root = os.path.abspath(root)
+    parser = argparse.ArgumentParser(description="Simple HTTP File Server")
+    parser.add_argument("-d", "--directory", default=".",
+                        help="Root dir to serve")
+    args = parser.parse_args()
+    root = os.path.abspath(args.directory)
     print(root)
 
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -120,7 +124,7 @@ def run_server():
         normalized_path = normalize_path(path)
 
         if original_path != normalized_path:
-            respond_301(client, f"http://{ADDRESS}:{PORT}{normalized_path}")
+            respond_301(client, f"{normalized_path}")
             client.close()
             continue
 
