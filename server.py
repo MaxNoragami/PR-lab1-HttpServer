@@ -69,7 +69,39 @@ def display_dir(actual_path, request_path):
             size = format_size(os.path.getsize(item_path))
             filtered_content.append((file_type, item, modified_time, size))
 
-    view = "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Index of {path}</title></head><body><h1>Index of {path}</h1><table><tr><th> </th><th>Name</th><th>Last Modified</th><th>Size</th></tr>{items}</table></body></html>"
+    view = r"""
+    <!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.jade.min.css">
+    <link rel="icon" type="image/x-icon" href="https://files.catbox.moe/6u1gw2.ico">
+    <title>=(^.^)= {path}</title></head>
+<body>
+    <main class="container">
+        <h1 style="text-align: center;">{path}</h1>
+        <div style="display: flex; justify-content: center;">
+        <pre style="background: none;">
+      |\      _,,,---,,_
+ZZZzz /,`.-'`'    -.  ;-;;,_
+     |,4-  ) )-,_. ,\ (  `'-'
+    '---''(_/--'  `-'\_)</pre>
+        </div>
+    <div>
+        <table class="striped">    
+        <tr>
+            <th></th>
+            <th>Name</th>
+            <th>Last Modified</th>
+            <th>Size</th>
+        </tr>    
+        {items}
+        </table>
+    </div>
+    </main>
+</body>
+</html>
+    """
     if not request_path.endswith('/'):
         request_path += '/'
     return view.format(path=request_path, items="".join(f"<tr><td>{file_type}</td><td><a href='{request_path}{name}'>{name}</a></td><td>{modified}</td><td>{size}</td></tr>" for file_type, name, modified, size in filtered_content))
