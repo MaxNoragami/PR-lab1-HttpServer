@@ -73,6 +73,16 @@ def display_dir(actual_path, request_path):
         request_path += '/'
     return view.format(path=request_path, items="".join(f"<tr><td>{file_type}</td><td><a href='http://{ADDRESS}:{PORT}{request_path}{name}'>{name}</a></td><td>{modified}</td><td>{size}</td></tr>" for file_type, name, modified, size in filtered_content))
 
+def normalize_path(path):
+    segments = [seg for seg in path.split('/') if seg]
+
+    normalized_segments = []
+    for segment in segments:
+        if len(segment) >= 3 and segment == '.' * len(segment):
+            continue
+        normalized_segments.append(segment)
+
+    return '/' + '/'.join(normalized_segments)
 
 def run_server():
     root = "."
@@ -107,7 +117,7 @@ def run_server():
         print(f"Serving {path} to {addr}")
 
         original_path = path
-        normalized_path = '/' + '/'.join(filter(None, path.split('/')))
+        normalized_path = normalize_path(path)
 
         if original_path != normalized_path:
             respond_301(client, f"http://{ADDRESS}:{PORT}{normalized_path}")
