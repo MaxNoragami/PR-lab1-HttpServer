@@ -7,6 +7,7 @@ __pycache__
 .gitignore
 .DS_Store
 venv/
+.venv/
 .idea/
 .vscode/
 *.sqlite3

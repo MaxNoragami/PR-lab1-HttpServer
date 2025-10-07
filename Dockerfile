@@ -7,3 +7,4 @@ RUN useradd -m labuser && chown -R labuser:labuser /lab1
 USER labuser
 
 EXPOSE 1337
+CMD ["python", "server.py", "-d", "/lab1"]

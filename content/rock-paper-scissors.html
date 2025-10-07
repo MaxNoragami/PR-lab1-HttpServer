@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="https://files.catbox.moe/jvmxeh.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rock-Paper-Scissors</title>
+      <style>
+        :root {
+          -webkit-tap-highlight-color: transparent;
+        }
+
+        * {
+          margin: 0;
+        }
+
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          font-size: 1em;
+          background-color: #1E201E;
+        }
+
+        .container {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          gap: 2%;
+          height: 100dvh;
+          position: relative;
+        }
+
+        .title {
+          color: #697565;
+          font-weight: bolder;
+        }
+
+        @media (max-width: 340px) {
+          .title {
+            font-size: 1.5rem;
+          }
+        }
+
+        .choices {
+          display: flex;
+          flex-direction: row;
+          justify-content: center;
+          gap: 5%;
+          margin: 3% 0;
+        }
+
+        .choice {
+          font-size: 4rem;
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: white;
+          outline: none;
+          filter: drop-shadow(0 0 10px #697565) drop-shadow(0 0 20px #697565) drop-shadow(0 0 30px #697565);
+          transition: filter 0.3s ease;
+        }
+
+        .choice:hover {
+          filter: drop-shadow(0 0 10px #ECDFCC) drop-shadow(0 0 20px #ECDFCC) drop-shadow(0 0 30px #ECDFCC);
+        }
+
+        #answerSection {
+          font-size: 2rem;
+          color: #697565;
+          font-weight: bold;
+          text-align: center;
+        }
+
+        .answer {
+          color: #ECDFCC;
+          font-weight: normal;
+        }
+
+        #scoreSection {
+          font-size: 1rem;
+          color: #697565;
+          font-weight: bold;
+          text-align: center;
+        }
+
+        .score {
+          color: #ECDFCC;
+          font-weight: normal;
+        }
+
+        #roundOutcome {
+          font-size: 4rem;
+          font-weight: bolder;
+          color: snow;
+          visibility: hidden;
+        }
+
+        footer {
+          position: absolute;
+          bottom: 0;
+          padding: 2%;
+        }
+
+        @media (max-width: 768px) {
+          footer {
+            padding: 5%;
+          }
+        }
+
+        .to-home,
+        .to-home:hover,
+        .to-home:active,
+        .to-home:visited {
+          color: #ECDFCC;
+          text-decoration: none;
+        }
+      </style>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <script>
+      function setupGame() {
+        const playerAnswer = document.getElementById("answerSection").children[0].firstElementChild;
+        const playerScoreElement = document.getElementById("scoreSection").children[0].firstElementChild;
+        const cpuAnswer = document.getElementById("answerSection").children[1].firstElementChild;
+        const cpuScoreElement = document.getElementById("scoreSection").children[1].firstElementChild;
+        const roundOutcome = document.getElementById("roundOutcome");
+        const choices = ["rock", "paper", "scissors"];
+
+        function play(choice) {
+          let cpuChoice = choices[Math.floor(Math.random() * 3)];
+          let isWin = null;
+
+          roundOutcome.style.visibility = "visible";
+
+          playerAnswer.textContent = choice.toUpperCase();
+          cpuAnswer.textContent = cpuChoice.toUpperCase();
+
+          console.log(choice, cpuChoice);
+          if (cpuChoice === choice) {
+            roundOutcome.textContent = "TIE";
+            roundOutcome.style.color = "khaki";
+          } else {
+            switch (choice) {
+              case "rock":
+                isWin = (cpuChoice == "scissors");
+                break;
+              case "paper":
+                isWin = (cpuChoice == "rock");
+                break;
+              case "scissors":
+                isWin = (cpuChoice == "paper");
+                break;
+            }
+
+            let cpuScore = Number(cpuScoreElement.textContent);
+            let playerScore = Number(playerScoreElement.textContent);
+
+            if (isNaN(playerScore) || isNaN(cpuScore)) {
+              console.warn("Error: Score ain't a Number, round doesn't count");
+              roundOutcome.textContent = "ERROR";
+              roundOutcome.style.color = "darkred";
+            } else if (isWin) {
+              roundOutcome.textContent = "YOU WIN";
+              roundOutcome.style.color = "lightgreen";
+              playerScore += 1;
+              playerScoreElement.textContent = playerScore;
+            } else if (!isWin) {
+              roundOutcome.textContent = "YOU LOSE";
+              roundOutcome.style.color = "tomato";
+              cpuScore += 1;
+              cpuScoreElement.textContent = cpuScore;
+            }
+          }
+        }
+
+        return { play };
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelector("#app").innerHTML = `
+          <div class="container" id="container">
+            <h1 class="title">Rock - Paper - Scissors</h1>
+            <div class="choices">
+              <button class="choice" data-choice="rock">🪨</button>
+              <button class="choice" data-choice="paper">📜</button>
+              <button class="choice" data-choice="scissors">✂️</button>
+            </div>
+            <div id="answerSection">
+              <p id="player">PLAYER: <span class="answer">NONE</span></p>
+              <p id="cpu">CPU: <span class="answer">NONE</span></p>
+            </div>
+            <p id="roundOutcome">NONE</p>
+            <div id="scoreSection">
+              <p id="player">PLAYER: <span class="score">0</span></p>
+              <p id="cpu">CPU: <span class="score">0</span></p>
+            </div>
+            <footer><a href="https://github.com/MaxNoragami" class="to-home">🍃 by maxim 🍃</a></footer>
+          </div>
+        `;
+
+        const game = setupGame();
+
+        document.querySelectorAll(".choice").forEach((button) => {
+          button.addEventListener("click", () => {
+            const choice = button.dataset.choice;
+            game.play(choice);
+          });
+        });
+      });
+    </script>
+
+  </body>
+</html>
