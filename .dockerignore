@@ -14,6 +14,6 @@ venv/
 *.log
 *.env
 README.md
-Dockerfile
+Dockerfile.server
 docker-compose.yml
 .dockerignore

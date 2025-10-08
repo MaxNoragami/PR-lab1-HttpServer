@@ -1,0 +1,10 @@
+FROM python:3.13-slim
+WORKDIR /app
+
+COPY server.py .
+
+RUN useradd -m labuser && chown -R labuser:labuser /app
+USER labuser
+
+EXPOSE 1337
+CMD ["python", "server.py", "-d", "/app/content"]

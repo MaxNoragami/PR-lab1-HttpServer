@@ -58,7 +58,10 @@ def respond(client, status, head, body):
               f"\r\n".join(f"{key}: {value}" for key, value in head.items()) +
               f"\r\n\r\n")
 
-    return client.send(header.encode() + body_bytes)
+    try:
+        client.sendall(header.encode() + body_bytes)
+    except (socket.error, BrokenPipeError, ConnectionResetError) as e:
+        print(f"Error sending response: {e}")
 
 
 def respond_400(client):
@@ -116,7 +119,7 @@ def display_dir(actual_path, request_path):
     if not request_path.endswith('/'):
         request_path += '/'
     return view.format(path=request_path, items="".join(
-        f"<tr><td>{file_type}</td><td><a href='{request_path}{name}'>{name}</a></td><td>{modified}</td><td>{size}</td></tr>"
+        f"<tr><td>{file_type}</td><td><a href='{request_path}{name.rstrip('/')}'>{name}</a></td><td>{modified}</td><td>{size}</td></tr>"
         for file_type, name, modified, size in filtered_content))
 
 
@@ -142,7 +145,13 @@ def start_server(root):
         while True:
             client, addr = server.accept()
 
-            client_request = client.recv(1024).decode(errors='ignore')
+            try:
+                client_request = client.recv(4096).decode(errors='ignore')
+            except (ConnectionResetError, socket.error) as e:
+                print(f"Error receiving request: {e}")
+                client.close()
+                continue
+
             try:
                 method, path, protocol = client_request.split("\r\n")[0].split(" ")
                 path = urllib.parse.unquote(path)
