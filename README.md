@@ -2,6 +2,8 @@
 
 ## Project Structure
 
+Self explanatory from the comments:
+
 ```
 PR-lab1-HttpServer/
 ├── client.py           # HTTP client for making requests, displays HTML, saves PDF/PNG
@@ -17,18 +19,9 @@ PR-lab1-HttpServer/
 └──────
 ```
 
-- **client.py:** HTTP client that makes requests to the server. It displays HTML content in the terminal and saves
-  PDF/PNG files to the `downloads/` directory.
-- **server.py:** HTTP file server that serves files from a specified directory, e.g., `content/`. Supports HTML, PDF,
-  and PNG files, generates directory listings, and handles path normalization with redirects.
-- **Dockerfile.client & Dockerfile.server:** Separate Docker images for client and server, both running as non-root
-  user, _labuser_, for security.
-- **docker-compose.yml:** Orchestrates both containers, maps port `1337` for server access, mounts volumes for content
-  and downloads, and ensures client shares network with server.
-- **content/:** The directory containing files to be served, including subdirectories for testing nested directory
-  navigation.
-
 ## Dockerfiles
+
+I decided to create two Dockerfiles, so one for the `server.py` and another one for `client.py`.
 
 #### Dockerfile.server
 
@@ -82,21 +75,19 @@ services:
 
 **_Why have I done things this way?_**
 
-- **Separate Dockerfiles:** Each service uses its own Dockerfile (`Dockerfile.server` and `Dockerfile.client`) for clean
-  separation of concerns.
+- **Separate Dockerfiles** - Each service uses its own Dockerfile for clean
+  separation of concerns
 - **Volume Mounts:**
-    - _Server:_ `./content:/app/content:ro` - Mounts the content directory as read-only so the server can serve files
-      without being able to modify them.
-    - _Client:_ `./content/downloads:/app/content/downloads` - Mounts the downloads directory with write permissions so
-      the client can save downloaded files.
-- **Client Command:** `tail -f /dev/null` - Keeps the client container running indefinitely. Without this, the container
-  would exit immediately since client.py isn't a long-running process. This allows me to run
+    - _Server_ - `./content:/app/content:ro` mounts the content directory as read-only so the server can serve files
+      without being able to modify them
+    - _Client_ - `./content/downloads:/app/content/downloads` mounts the downloads directory with write permissions so
+      the client can save downloaded files
+- **Client Command** - `tail -f /dev/null` keeps the client container running indefinitely, as without this, the container
+  would exit immediately since client.py isn't a long-running process, so this allows me to run
   `docker-compose exec client python client.py ...` to execute client commands without starting a new container
-  instance.
-- **depends_on:** Ensures the server container starts before the client container, preventing connection errors during
-  startup.
-- **extra_hosts:** Adds host.docker.internal DNS entry pointing to the host machine's gateway. This allows the client to
-  make requests to services running on the host machine (outside Docker) if needed.
+  instance
+- **extra_hosts** - Adds `host.docker.internal` DNS entry pointing to the host machine's gateway, which allows the client to
+  make requests to services running on the host machine, outside Docker, in case I want to run other HTTP servers locally, such as one written in Pascal (RIP)
 
 ## Server Usage
 
@@ -131,7 +122,7 @@ Serving / to ('127.0.0.1', 56684)
 
 <details>
 <summary>Accessing a subdir 📂</summary>
-    <img src="https://files.catbox.moe/ut9pd4.png" alt="Subdirectory Listing" />
+    <img src="https://files.catbox.moe/2wp2lc.png" alt="Subdirectory Listing" />
 
 ```shell
 # Output from server logs when accessing /homework
@@ -147,7 +138,7 @@ Serving /homework to ('127.0.0.1', 56676)
 
 #### Request for an HTML File, referencing two PNG files
 
-<img src="https://files.catbox.moe/ujxfef.png" alt="Requested HTML File with references" />
+<img src="https://files.catbox.moe/6uyajf.png" alt="Requested HTML File with references" />
 
 ```shell
 # Output from server logs when accessing homework/hw.html
@@ -161,7 +152,7 @@ Serving /homework/cute_chicks.png to ('127.0.0.1', 55134)
 
 #### Request for a PNG File
 
-<img src="https://files.catbox.moe/wzxqfl.png" alt="Requested PNG" />
+<img src="https://files.catbox.moe/vc1bh4.png" alt="Requested PNG" />
 
 ```shell
 # Output from server logs when accessing /homework/cute_chicks.png
@@ -171,7 +162,7 @@ Serving /homework/cute_chicks.png to ('127.0.0.1', 57048)
 
 #### Request for a PDF File
 
-<img src="https://files.catbox.moe/0ddxho.png" alt="Requested PDF" />
+<img src="https://files.catbox.moe/70a9al.png" alt="Requested PDF" />
 
 ```shell
 # Output from server logs when accessing `Lucrare de laborator nr. 1. Cifrul Cezar + (1).pdf`
@@ -181,7 +172,7 @@ Serving /Lucrare de laborator nr. 1. Cifrul Cezar + (1).pdf to ('127.0.0.1', 619
 
 #### Request for a nonexistent File
 
-<img src="https://files.catbox.moe/zrencx.png" alt="Request to nonexistent file" />
+<img src="https://files.catbox.moe/t3fem7.png" alt="Request to nonexistent file" />
 
 ```shell
 # Output from server logs when accessing /nonexistent.html
@@ -215,7 +206,7 @@ docker-compose up -d
 # Execute client commands
 docker-compose exec client python client.py -H [HOST] -p [PORT] -u [URL] -d [DOWNLOAD_DIR]
 
-# Example: Fetch and display an HTML file
+# Example: Try fetching and displaying an HTML file
 docker-compose exec client python client.py -H server -p 1337 -u /nonexistent.html -d ./content/downloads 
 
 # Output:
@@ -228,11 +219,11 @@ python client.py -H [HOST] -p [PORT] -u [URL] -d [DOWNLOAD_DIR]
 
 ## Requests to Adrian Vremere's server
 
-In order to achieve this, both my machine and Adrian's server need to be connected to the same network. I used my
+In order to achieve this, both my machine and Adrian's server needed to be connected to the same network. I used my
 phone's hotspot for this purpose.
 
-- His IP address was `10.202.125.62` (he got by running `ifconfig` on his machine)
-- The port he was using was `6969` (nice x2)
+- His IP address was `10.202.125.62` (he got it by running `ifconfig` on his machine)
+- The port he was using: `6969` (nice x2)
 
 <details><summary>Via the dockerized client 🐋</summary>
 <img src="https://files.catbox.moe/uo5ofe.png" alt="Request via dockerized client to Adrian's server" />
