@@ -46,6 +46,31 @@ ZZZzz /,`.-'`'    -.  ;-;;,_
     """
 
 
+def get_error_view(message):
+    return fr"""
+    <!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.jade.min.css">
+    <link rel="icon" type="image/x-icon" href="https://files.catbox.moe/6u1gw2.ico">
+    <title>=(^.^)= {message}</title></head>
+<body>
+    <main class="container">
+        <h1 style="text-align: center;">{message}</h1>
+        <div style="display: flex; justify-content: center;">
+        <pre style="background: none;">
+      |\      _,,,---,,_
+ZZZzz /,`.-'`'    -.  ;-;;,_
+     |,4-  ) )-,_. ,\ (  `'-'
+    '---''(_/--'  `-'\_)</pre>
+        </div>
+    </main>
+</body>
+</html>
+    """
+
+
 def respond(client, status, head, body):
     if isinstance(body, str):
         body_bytes = body.encode()
@@ -67,15 +92,15 @@ def respond(client, status, head, body):
 def respond_400(client):
     return respond(client,
                    "400 Bad Request",
-                   {"Content-Type": "text/plain", "Connection": "close"},
-                   "Bad Request")
+                   {"Content-Type": "text/html", "Connection": "close"},
+                   get_error_view("400 Bad Request"))
 
 
 def respond_404(client):
     return respond(client,
                    "404 Not Found",
-                   {"Content-Type": "text/plain", "Connection": "close"},
-                   "Not Found")
+                   {"Content-Type": "text/html", "Connection": "close"},
+                   get_error_view("404 Not Found"))
 
 
 def respond_301(client, location):
