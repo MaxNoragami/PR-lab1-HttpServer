@@ -2,7 +2,7 @@
 
 ## Project Structure
 
-Self explanatory from the comments:
+Self-explanatory from the comments:
 
 ```
 PR-lab1-HttpServer/
@@ -67,8 +67,6 @@ services:
     volumes:
       - "./content/downloads:/app/content/downloads"
     command: [ "tail", "-f", "/dev/null" ]
-    depends_on:
-      - server
     extra_hosts:
       - "host.docker.internal:host-gateway"
 ```

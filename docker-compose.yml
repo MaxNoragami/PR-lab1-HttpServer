@@ -16,7 +16,5 @@ services:
     volumes:
       - "./content/downloads:/app/content/downloads"
     command: ["tail", "-f", "/dev/null"]
-    depends_on:
-      - server
     extra_hosts:
         - "host.docker.internal:host-gateway"

@@ -70,6 +70,10 @@ def make_http_request(host, port, normalized_path, max_redirects=5):
 
             status_code, headers, body = parse_http_response(response)
 
+            if status_code is None:
+                print("Error: Could not parse HTTP response")
+                return None, {}, b''
+
             if status_code in [301, 302, 307, 308]:
                 location = headers.get('location')
                 if location:
@@ -78,15 +82,15 @@ def make_http_request(host, port, normalized_path, max_redirects=5):
                     continue
                 else:
                     print("Redirect without Location header")
-                    return response
+                    return status_code, headers, body
 
-            return response
+            return status_code, headers, body
         except socket.error as e:
             print(f"Error connecting to server: {e}")
-            return None
+            return None, {}, b''
 
     print(f"Too many redirects (>{max_redirects})")
-    return None
+    return None, {}, b''
 
 
 def save_file(content, directory, normalized_path):
@@ -122,13 +126,8 @@ def main():
     parsed_url = urllib.parse.urlparse(args.url)
     normalized_path = normalize_path(parsed_url.path)
 
-    response = make_http_request(args.host, args.port, normalized_path)
-    if response is None:
-        return
-
-    status_code, headers, body = parse_http_response(response)
+    status_code, headers, body = make_http_request(args.host, args.port, normalized_path)
     if status_code is None:
-        print("Error: Could not parse HTTP response")
         return
 
     print(f"HTTP {status_code}")
